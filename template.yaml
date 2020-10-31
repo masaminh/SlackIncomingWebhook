@@ -1,0 +1,84 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  slackincomingwebhook
+  Call Slack's IncomingWebHook
+
+Parameters:
+  Stage:
+    Type: String
+    Default: Dev
+  MessageIdTableName:
+    Type: String
+    Default: SlackIncomingMessageIdTableDev
+
+Resources:
+  SlackIncomingWebHookFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Timeout: 30
+      Runtime: nodejs12.x
+      CodeUri: dist/
+      Handler: app.handler
+      Events:
+        MySQSEvent:
+          Type: SQS
+          Properties:
+            Queue:
+              Fn::GetAtt: [SlackIncomingWebHookQueue, Arn]
+            BatchSize: 10
+      Environment:
+        Variables:
+          STAGE:
+            Ref: Stage
+          MESSAGEID_TABLE_NAME:
+            Ref: MessageIdTableName
+      Policies:
+        - Version: 2012-10-17
+          Statement:
+            Effect: Allow
+            Action:
+              - sts:AssumeRole
+              - ssm:GetParameter
+            Resource: "*"
+        - Version: 2012-10-17
+          Statement:
+            Effect: Allow
+            Action:
+              - dynamodb:GetItem
+              - dynamodb:PutItem
+            Resource:
+              Fn::GetAtt: [SlackIncomingTable, Arn]
+
+  SlackIncomingWebHookQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 180
+      MessageRetentionPeriod: 600
+
+  SlackIncomingTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName:
+        Ref: MessageIdTableName
+      AttributeDefinitions:
+        - AttributeName: MessageId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: MessageId
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: TTL
+        Enabled: true
+      BillingMode: PROVISIONED
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+Outputs:
+  SlackIncomingQueue:
+    Value:
+      Ref: SlackIncomingWebHookQueue
+    Export:
+      Name:
+        Fn::Sub: ${AWS::StackName}-QUEUE-URL

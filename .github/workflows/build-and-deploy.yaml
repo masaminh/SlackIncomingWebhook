@@ -30,4 +30,4 @@ jobs:
       - name: Build
         run: yarn build
       - name: Deploy
-        run: sam deploy --stack-name SlackIncomingWebHookAppProd --s3-bucket ${{ secrets.AWS_SAM_BUCKET_NAME }} --s3-prefix SlackIncomingWebHookAppProd --capabilities CAPABILITY_IAM --parameter-overrides Stage=Prod,MessageIdTableName=SlackIncomingMessageIdTableProd
+        run: sam deploy --stack-name SlackIncomingWebHookAppProd --s3-bucket ${{ secrets.AWS_SAM_BUCKET_NAME }} --s3-prefix SlackIncomingWebHookAppProd --capabilities CAPABILITY_IAM --parameter-overrides "Stage=Prod MessageIdTableName=SlackIncomingMessageIdTableProd"

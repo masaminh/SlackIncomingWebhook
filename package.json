@@ -3,7 +3,7 @@
   "license": "MIT",
   "version": "1.0.0",
   "scripts": {
-    "build": "rm -r dist && tsc && cp package.json ./dist && sam build",
+    "build": "rm -rf dist && tsc && cp package.json ./dist && sam build",
     "deploy": "sam deploy",
     "test": "jest"
   },

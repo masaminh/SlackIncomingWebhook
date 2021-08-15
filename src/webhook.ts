@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk';
 import axios from 'axios';
 import logger from './logger';
+import { MessagePayload } from './message_info';
 
 export const ResultType = {
   Success: 0,
@@ -25,20 +26,18 @@ export default class Webhook {
     return new Webhook(url);
   }
 
-  public async sendMessage(message: string): Promise<ResultType> {
-    const response = await axios.post(
-      this.url,
-      { text: message },
-      {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        validateStatus(_status) {
-          // ステータスコードに関しての例外は発生させない
-          return true;
-        }
+  public async sendMessage(message: MessagePayload): Promise<ResultType> {
+    const response = await axios.post(this.url, message, {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      validateStatus(_status) {
+        // ステータスコードに関しての例外は発生させない
+        return true;
       }
-    );
+    });
 
-    const logMessage = `Posted: url=${this.url}, message=${message}, httpstatus=${response.status}`;
+    const logMessage = `Posted: url=${this.url}, message=${JSON.stringify(
+      message
+    )}, httpstatus=${response.status}`;
     const resultType = Webhook.getResultType(response.status);
 
     if (resultType === ResultType.Success) {

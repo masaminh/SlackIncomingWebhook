@@ -50,7 +50,7 @@ test('sendMessage success', async () => {
   const mockedAxios = axios as jest.Mocked<typeof axios>;
   mockedAxios.post.mockResolvedValue({ status: 200 });
   const webhook = await Webhook.create('stage', 'webhookname');
-  const result = await webhook.sendMessage('hello');
+  const result = await webhook.sendMessage({ text: 'hello', blocks: [] });
   expect(result).toBe(ResultType.Success);
 });
 
@@ -74,7 +74,7 @@ test('sendMessage need retry', async () => {
   const mockedAxios = axios as jest.Mocked<typeof axios>;
   mockedAxios.post.mockResolvedValue({ status: 500 });
   const webhook = await Webhook.create('stage', 'webhookname');
-  const result = await webhook.sendMessage('hello');
+  const result = await webhook.sendMessage({ text: 'hello', blocks: [] });
   expect(result).toBe(ResultType.NeedRetry);
 });
 
@@ -98,6 +98,6 @@ test('sendMessage not retry', async () => {
   const mockedAxios = axios as jest.Mocked<typeof axios>;
   mockedAxios.post.mockResolvedValue({ status: 404 });
   const webhook = await Webhook.create('stage', 'webhookname');
-  const result = await webhook.sendMessage('hello');
+  const result = await webhook.sendMessage({ text: 'hello', blocks: [] });
   expect(result).toBe(ResultType.NotSuccess);
 });

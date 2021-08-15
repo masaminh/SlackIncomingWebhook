@@ -64,7 +64,7 @@ export default class MessageInfo {
   private images: InputMessageImageInfo[] = [];
 
   public constructor(messageBody: string) {
-    logger.debug(messageBody);
+    logger.info(`received message: ${JSON.stringify(messageBody)}`);
     try {
       const messageInfo = JSON.parse(messageBody);
       if (!isInputMessageInfo(messageInfo)) {

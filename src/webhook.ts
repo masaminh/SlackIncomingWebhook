@@ -3,13 +3,7 @@ import axios from 'axios';
 import logger from './logger';
 import { MessagePayload } from './message_info';
 
-export const ResultType = {
-  Success: 0,
-  NotSuccess: 1,
-  NeedRetry: 2
-} as const;
-
-type ResultType = typeof ResultType[keyof typeof ResultType];
+export type ResultType = 'Success' | 'NotSuccess' | 'NeedRetry';
 
 export default class Webhook {
   private url: string;
@@ -40,7 +34,7 @@ export default class Webhook {
     )}, httpstatus=${response.status}`;
     const resultType = Webhook.getResultType(response.status);
 
-    if (resultType === ResultType.Success) {
+    if (resultType === 'Success') {
       logger.info(logMessage);
     } else {
       logger.error(logMessage);
@@ -69,13 +63,13 @@ export default class Webhook {
 
   private static getResultType(statusCode: number): ResultType {
     if (statusCode === 200) {
-      return ResultType.Success;
+      return 'Success';
     }
 
     if (statusCode < 500) {
-      return ResultType.NotSuccess;
+      return 'NotSuccess';
     }
 
-    return ResultType.NeedRetry;
+    return 'NeedRetry';
   }
 }

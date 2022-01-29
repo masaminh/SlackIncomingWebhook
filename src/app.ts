@@ -2,7 +2,7 @@ import { SQSHandler } from 'aws-lambda'; // eslint-disable-line import/no-unreso
 import { DateTime } from 'luxon';
 import MessageInfo from './message_info';
 import UsedMessageIds from './used_messageids';
-import Webhook, { ResultType } from './webhook';
+import Webhook from './webhook';
 import logger from './logger';
 
 const stage = process.env.STAGE ?? '';
@@ -31,7 +31,7 @@ export const handler: SQSHandler = async event => {
       const message = messageInfo.getMessage();
       const resultType = await webhook.sendMessage(message);
 
-      if (resultType === ResultType.NeedRetry) {
+      if (resultType === 'NeedRetry') {
         return true;
       }
 

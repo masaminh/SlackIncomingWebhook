@@ -7,14 +7,14 @@ import { SQSEvent, SQSRecord, Context } from 'aws-lambda';
 import { mocked } from 'ts-jest/utils';
 import { handler } from './app';
 import UsedMessageIds from './used_messageids';
-import Webhook, { ResultType } from './webhook';
+import Webhook from './webhook';
 
 jest.mock('./used_messageids');
 jest.mock('./webhook');
 
 test('handler', async () => {
   const sendMessageFunc = jest.fn();
-  sendMessageFunc.mockReturnValue(ResultType.Success);
+  sendMessageFunc.mockReturnValue('Success');
   const WebhookCreateMock = jest.fn();
   WebhookCreateMock.mockReturnValue({
     sendMessage: sendMessageFunc

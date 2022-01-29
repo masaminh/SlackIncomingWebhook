@@ -4,7 +4,7 @@
 import AWS from 'aws-sdk';
 import axios, { AxiosInstance } from 'axios';
 import { mocked } from 'ts-jest/utils';
-import Webhook, { ResultType } from './webhook';
+import Webhook from './webhook';
 
 jest.mock('aws-sdk');
 jest.mock('axios');
@@ -51,7 +51,7 @@ test('sendMessage success', async () => {
   mockedAxios.post.mockResolvedValue({ status: 200 });
   const webhook = await Webhook.create('stage', 'webhookname');
   const result = await webhook.sendMessage({ text: 'hello', blocks: [] });
-  expect(result).toBe(ResultType.Success);
+  expect(result).toBe('Success');
 });
 
 test('sendMessage need retry', async () => {
@@ -75,7 +75,7 @@ test('sendMessage need retry', async () => {
   mockedAxios.post.mockResolvedValue({ status: 500 });
   const webhook = await Webhook.create('stage', 'webhookname');
   const result = await webhook.sendMessage({ text: 'hello', blocks: [] });
-  expect(result).toBe(ResultType.NeedRetry);
+  expect(result).toBe('NeedRetry');
 });
 
 test('sendMessage not retry', async () => {
@@ -99,5 +99,5 @@ test('sendMessage not retry', async () => {
   mockedAxios.post.mockResolvedValue({ status: 404 });
   const webhook = await Webhook.create('stage', 'webhookname');
   const result = await webhook.sendMessage({ text: 'hello', blocks: [] });
-  expect(result).toBe(ResultType.NotSuccess);
+  expect(result).toBe('NotSuccess');
 });

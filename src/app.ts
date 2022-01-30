@@ -1,4 +1,5 @@
-import { SQSHandler } from 'aws-lambda'; // eslint-disable-line import/no-unresolved
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { SQSHandler } from 'aws-lambda';
 import { DateTime } from 'luxon';
 import MessageInfo from './message_info';
 import UsedMessageIds from './used_messageids';
@@ -9,12 +10,12 @@ const stage = process.env.STAGE ?? '';
 const messageIdTableName = process.env.MESSAGEID_TABLE_NAME ?? '';
 
 // eslint-disable-next-line import/prefer-default-export
-export const handler: SQSHandler = async event => {
+export const handler: SQSHandler = async (event) => {
   const usedMessageIds = new UsedMessageIds(messageIdTableName);
   const now = DateTime.local();
 
   const needRetries = await Promise.all(
-    event.Records.map(async v => {
+    event.Records.map(async (v) => {
       if (await usedMessageIds.contains(v.messageId)) {
         logger.info(`Already used messageId: ${v.messageId}`);
         return false;
@@ -37,10 +38,10 @@ export const handler: SQSHandler = async event => {
 
       await usedMessageIds.add(v.messageId, now);
       return false;
-    })
+    }),
   );
 
-  if (needRetries.some(v => v)) {
+  if (needRetries.some((v) => v)) {
     throw new Error('need to retry');
   }
 };

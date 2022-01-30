@@ -1,12 +1,6 @@
-/* eslint @typescript-eslint/no-empty-function: 0 */
-/* eslint no-undef: 0, @typescript-eslint/no-explicit-any: 0 */
-/* eslint @typescript-eslint/explicit-function-return-type: 0, @typescript-eslint/no-unused-vars: 0 */
-/* eslint import/no-extraneous-dependencies: 0, import/no-unresolved: 0 */
-
+// eslint-disable-next-line import/no-extraneous-dependencies
 import { SQSEvent, SQSRecord, Context } from 'aws-lambda';
-import { mocked } from 'ts-jest/utils';
 import { handler } from './app';
-import UsedMessageIds from './used_messageids';
 import Webhook from './webhook';
 
 jest.mock('./used_messageids');
@@ -17,14 +11,14 @@ test('handler', async () => {
   sendMessageFunc.mockReturnValue('Success');
   const WebhookCreateMock = jest.fn();
   WebhookCreateMock.mockReturnValue({
-    sendMessage: sendMessageFunc
+    sendMessage: sendMessageFunc,
   });
   Webhook.create = WebhookCreateMock.bind(Webhook);
   const MockSqsRecord = jest.fn<SQSRecord, []>();
   const record = new MockSqsRecord();
   record.body = '{"webhookname": "ABC", "message": "hello"}';
   const event: SQSEvent = {
-    Records: [record]
+    Records: [record],
   };
   const MockContext = jest.fn<Context, []>();
   const context = new MockContext();

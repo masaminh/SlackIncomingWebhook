@@ -1,5 +1,3 @@
-/* eslint no-undef: 0 */
-
 import MessageInfo from './message_info';
 
 test.each`

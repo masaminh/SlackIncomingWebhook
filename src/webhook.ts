@@ -14,7 +14,7 @@ export default class Webhook {
 
   public static async create(
     stage: string,
-    webhookName: string
+    webhookName: string,
   ): Promise<Webhook> {
     const url = await Webhook.getSlackUrl(stage, webhookName);
     return new Webhook(url);
@@ -22,15 +22,14 @@ export default class Webhook {
 
   public async sendMessage(message: MessagePayload): Promise<ResultType> {
     const response = await axios.post(this.url, message, {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       validateStatus(_status) {
         // ステータスコードに関しての例外は発生させない
         return true;
-      }
+      },
     });
 
     const logMessage = `Posted: url=${this.url}, message=${JSON.stringify(
-      message
+      message,
     )}, httpstatus=${response.status}`;
     const resultType = Webhook.getResultType(response.status);
 
@@ -45,7 +44,7 @@ export default class Webhook {
 
   private static async getSlackUrl(
     stage: string,
-    webhookName: string
+    webhookName: string,
   ): Promise<string> {
     const parameterName = `/${stage}/SlackIncomingWebhook/${webhookName}/WebHookUrl`;
     try {

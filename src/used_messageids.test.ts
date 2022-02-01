@@ -1,27 +1,24 @@
-/* eslint no-undef: 0, @typescript-eslint/no-explicit-any : 0 */
-/* eslint @typescript-eslint/explicit-function-return-type: 0, @typescript-eslint/no-unused-vars: 0 */
-/* eslint import/no-extraneous-dependencies: 0 */
 import AWS from 'aws-sdk';
 import { DateTime } from 'luxon';
-import { mocked } from 'ts-jest/utils';
 import UsedMessageIds from './used_messageids';
 
+jest.mock('./logger');
+
 jest.mock('aws-sdk');
+const DocumentClientMock = AWS.DynamoDB.DocumentClient as jest.Mock;
+
+beforeAll(() => {
+  jest.clearAllMocks();
+});
 
 test('not contained messageid', async () => {
-  mocked(AWS.DynamoDB.DocumentClient).mockImplementationOnce((): any => {
-    return {
-      get: (param: any, callback: any) => {
-        return {
-          promise: () => {
-            return {
-              Item: undefined
-            };
-          }
-        };
-      }
-    };
-  });
+  DocumentClientMock.mockImplementationOnce((): any => ({
+    get: (_param: any, _callback: any) => ({
+      promise: () => ({
+        Item: undefined,
+      }),
+    }),
+  }));
 
   const usedMessageIds = new UsedMessageIds('TABLE_NAME');
   const result = await usedMessageIds.contains('ABC');
@@ -29,22 +26,16 @@ test('not contained messageid', async () => {
 });
 
 test('contained messageid', async () => {
-  mocked(AWS.DynamoDB.DocumentClient).mockImplementationOnce((): any => {
-    return {
-      get: (param: any, callback: any) => {
-        return {
-          promise: () => {
-            return {
-              Item: {
-                MessageId: 'ABC',
-                TTL: 1000
-              }
-            };
-          }
-        };
-      }
-    };
-  });
+  DocumentClientMock.mockImplementationOnce((): any => ({
+    get: (_param: any, _callback: any) => ({
+      promise: () => ({
+        Item: {
+          MessageId: 'ABC',
+          TTL: 1000,
+        },
+      }),
+    }),
+  }));
 
   const usedMessageIds = new UsedMessageIds('TABLE_NAME');
   const result = await usedMessageIds.contains('ABC');
@@ -54,15 +45,11 @@ test('contained messageid', async () => {
 test('add', async () => {
   const putFunc = jest.fn();
   putFunc.mockReturnValue({
-    promise: () => {
-      return {};
-    }
+    promise: () => ({}),
   });
-  mocked(AWS.DynamoDB.DocumentClient).mockImplementationOnce((): any => {
-    return {
-      put: putFunc
-    };
-  });
+  DocumentClientMock.mockImplementationOnce((): any => ({
+    put: putFunc,
+  }));
 
   const usedMessageIds = new UsedMessageIds('TABLE_NAME');
   usedMessageIds.add('ABC', DateTime.fromISO('2020-01-01T00:00:00Z'));

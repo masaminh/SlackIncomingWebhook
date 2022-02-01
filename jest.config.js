@@ -31,7 +31,7 @@ module.exports = {
   // ],
 
   // Indicates which provider should be used to instrument code for coverage
-  coverageProvider: 'v8',
+  // coverageProvider: 'v8',
 
   // A list of reporter names that Jest uses when writing coverage reports
   // coverageReporters: [
@@ -63,7 +63,7 @@ module.exports = {
   // globals: {},
 
   // The maximum amount of workers used to run your tests. Can be specified as % or a number. E.g. maxWorkers: 10% will use 10% of your CPU amount + 1 as the maximum worker number. maxWorkers: 2 will use a maximum of 2 workers.
-  maxWorkers: "10",
+  // maxWorkers: "10",
 
   // An array of directory names to be searched recursively up from the requiring module's location
   // moduleDirectories: [
@@ -171,8 +171,8 @@ module.exports = {
 
   // A map from regular expressions to paths to transformers
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest'
-  }
+    '^.+\\.(ts|tsx)$': 'ts-jest',
+  },
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   // transformIgnorePatterns: [
   //   "/node_modules/",

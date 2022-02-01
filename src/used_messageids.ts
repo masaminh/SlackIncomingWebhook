@@ -15,7 +15,7 @@ export default class UsedMessageIds {
     const data = await this.docClient
       .get({
         TableName: this.messageIdTableName,
-        Key: { MessageId: messageId }
+        Key: { MessageId: messageId },
       })
       .promise();
 
@@ -29,8 +29,8 @@ export default class UsedMessageIds {
         TableName: this.messageIdTableName,
         Item: {
           MessageId: messageId,
-          TTL: Math.floor(tomorrow.toMillis() / 1000)
-        }
+          TTL: Math.floor(tomorrow.toMillis() / 1000),
+        },
       })
       .promise();
   }

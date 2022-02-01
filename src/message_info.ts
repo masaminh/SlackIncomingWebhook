@@ -5,7 +5,6 @@ interface InputMessageImageInfo {
   imageName: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isInputMessageImageInfo(arg: any): arg is InputMessageImageInfo {
   return typeof arg.imageUrl === 'string' && typeof arg.imageName === 'string';
 }
@@ -16,7 +15,6 @@ interface InputMessageInfo {
   images?: InputMessageImageInfo[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isInputMessageInfo(arg: any): arg is InputMessageInfo {
   if (typeof arg.webhookname !== 'string' || typeof arg.message !== 'string') {
     return false;
@@ -27,7 +25,6 @@ function isInputMessageInfo(arg: any): arg is InputMessageInfo {
       return false;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if (!arg.images.every((x: any) => isInputMessageImageInfo(x))) {
       return false;
     }
@@ -89,10 +86,8 @@ export default class MessageInfo {
       (acc: MessagePayloadBlock[], cur) => {
         acc.push({
           type: 'image',
-          // eslint-disable-next-line @typescript-eslint/camelcase
           image_url: cur.imageUrl,
-          // eslint-disable-next-line @typescript-eslint/camelcase
-          alt_text: cur.imageName
+          alt_text: cur.imageName,
         });
         return acc;
       },
@@ -101,14 +96,14 @@ export default class MessageInfo {
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: this.message
-          }
-        }
-      ]
+            text: this.message,
+          },
+        },
+      ],
     );
     return {
       text: this.message,
-      blocks
+      blocks,
     };
   }
 }

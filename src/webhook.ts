@@ -3,13 +3,7 @@ import axios from 'axios';
 import logger from './logger';
 import { MessagePayload } from './message_info';
 
-export const ResultType = {
-  Success: 0,
-  NotSuccess: 1,
-  NeedRetry: 2
-} as const;
-
-type ResultType = typeof ResultType[keyof typeof ResultType];
+export type ResultType = 'Success' | 'NotSuccess' | 'NeedRetry';
 
 export default class Webhook {
   private url: string;
@@ -20,7 +14,7 @@ export default class Webhook {
 
   public static async create(
     stage: string,
-    webhookName: string
+    webhookName: string,
   ): Promise<Webhook> {
     const url = await Webhook.getSlackUrl(stage, webhookName);
     return new Webhook(url);
@@ -28,19 +22,18 @@ export default class Webhook {
 
   public async sendMessage(message: MessagePayload): Promise<ResultType> {
     const response = await axios.post(this.url, message, {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       validateStatus(_status) {
         // ステータスコードに関しての例外は発生させない
         return true;
-      }
+      },
     });
 
     const logMessage = `Posted: url=${this.url}, message=${JSON.stringify(
-      message
+      message,
     )}, httpstatus=${response.status}`;
     const resultType = Webhook.getResultType(response.status);
 
-    if (resultType === ResultType.Success) {
+    if (resultType === 'Success') {
       logger.info(logMessage);
     } else {
       logger.error(logMessage);
@@ -51,7 +44,7 @@ export default class Webhook {
 
   private static async getSlackUrl(
     stage: string,
-    webhookName: string
+    webhookName: string,
   ): Promise<string> {
     const parameterName = `/${stage}/SlackIncomingWebhook/${webhookName}/WebHookUrl`;
     try {
@@ -69,13 +62,13 @@ export default class Webhook {
 
   private static getResultType(statusCode: number): ResultType {
     if (statusCode === 200) {
-      return ResultType.Success;
+      return 'Success';
     }
 
     if (statusCode < 500) {
-      return ResultType.NotSuccess;
+      return 'NotSuccess';
     }
 
-    return ResultType.NeedRetry;
+    return 'NeedRetry';
   }
 }

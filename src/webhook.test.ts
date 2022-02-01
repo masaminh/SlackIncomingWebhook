@@ -4,10 +4,11 @@ import Webhook from './webhook';
 
 jest.mock('aws-sdk');
 jest.mock('axios');
+jest.mock('./logger');
 
 const SSMMock = AWS.SSM as unknown as jest.Mock;
 
-beforeAll(() => {
+beforeEach(() => {
   jest.clearAllMocks();
 });
 

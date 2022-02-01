@@ -2,6 +2,8 @@ import AWS from 'aws-sdk';
 import { DateTime } from 'luxon';
 import UsedMessageIds from './used_messageids';
 
+jest.mock('./logger');
+
 jest.mock('aws-sdk');
 const DocumentClientMock = AWS.DynamoDB.DocumentClient as jest.Mock;
 

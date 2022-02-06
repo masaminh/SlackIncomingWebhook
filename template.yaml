@@ -50,6 +50,13 @@ Resources:
             Resource:
               Fn::GetAtt: [SlackIncomingTable, Arn]
 
+  SlackIncomingWebHookFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName:
+        Fn::Sub: /aws/lambda/${SlackIncomingWebHookFunction}
+      RetentionInDays: 30
+
   SlackIncomingWebHookQueue:
     Type: AWS::SQS::Queue
     Properties:

@@ -70,7 +70,6 @@ Resources:
     Properties:
       VisibilityTimeout: 180
       MessageRetentionPeriod: 600
-      ReceiveMessageWaitTimeSeconds: 20
 
   SlackIncomingTable:
     Type: AWS::DynamoDB::Table

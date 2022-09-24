@@ -29,6 +29,12 @@ describe('Queue', () => {
     const queue = new Queue('URL');
     const result = await queue.receiveMessages();
 
+    expect(receiveMessageMock).toBeCalledTimes(1);
+    expect(receiveMessageMock.mock.calls[0][0]).toEqual({
+      QueueUrl: 'URL',
+      MaxNumberOfMessages: 10,
+      WaitTimeSeconds: 1,
+    });
     expect(result).toHaveLength(1);
     expect(result[0].messageId).toBe('ID');
     expect(result[0].body).toBe('BODY');

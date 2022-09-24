@@ -17,6 +17,7 @@ export default class Queue {
     const result = await this.sqs.receiveMessage({
       QueueUrl: this.url,
       MaxNumberOfMessages: 10,
+      WaitTimeSeconds: 1,
     }).promise();
 
     const queueMessages: QueueMessage[] = [];

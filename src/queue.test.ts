@@ -33,8 +33,8 @@ describe('Queue', () => {
     expect(receiveMessageMock.mock.calls[0][0]).toEqual({
       QueueUrl: 'URL',
       MaxNumberOfMessages: 10,
-      WaitTimeSeconds: 1,
     });
+    expect(receiveMessageMock.mock.calls[0][0].WaitTimeSeconds).toBeUndefined();
     expect(result).toHaveLength(1);
     expect(result[0].messageId).toBe('ID');
     expect(result[0].body).toBe('BODY');

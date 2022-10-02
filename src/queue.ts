@@ -14,24 +14,32 @@ export default class Queue {
   }
 
   public async receiveMessages(): Promise<QueueMessage[]> {
-    const result = await this.sqs.receiveMessage({
-      QueueUrl: this.url,
-      MaxNumberOfMessages: 10,
-    }).promise();
-
     const queueMessages: QueueMessage[] = [];
 
-    result.Messages?.forEach((message) => {
-      if (message.MessageId == null || message.Body == null || message.ReceiptHandle == null) {
-        return;
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      // eslint-disable-next-line no-await-in-loop
+      const result = await this.sqs.receiveMessage({
+        QueueUrl: this.url,
+        MaxNumberOfMessages: 10,
+      }).promise();
+
+      if ((result.Messages ?? []).length === 0) {
+        break;
       }
 
-      queueMessages.push({
-        messageId: message.MessageId,
-        body: message.Body,
-        handle: message.ReceiptHandle,
+      result.Messages?.forEach((message) => {
+        if (message.MessageId == null || message.Body == null || message.ReceiptHandle == null) {
+          return;
+        }
+
+        queueMessages.push({
+          messageId: message.MessageId,
+          body: message.Body,
+          handle: message.ReceiptHandle,
+        });
       });
-    });
+    }
 
     return queueMessages;
   }

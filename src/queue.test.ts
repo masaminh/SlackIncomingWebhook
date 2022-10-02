@@ -20,21 +20,30 @@ describe('Queue', () => {
   });
 
   it('receiveMessages', async () => {
-    receiveMessageMock.mockImplementation(() => ({
+    receiveMessageMock.mockImplementationOnce(() => ({
       promise: () => Promise.resolve({
         Messages: [{ MessageId: 'ID', Body: 'BODY', ReceiptHandle: 'HANDLE' }],
+      }),
+    })).mockImplementationOnce(() => ({
+      promise: () => Promise.resolve({
+        Messages: [],
       }),
     }));
 
     const queue = new Queue('URL');
     const result = await queue.receiveMessages();
 
-    expect(receiveMessageMock).toBeCalledTimes(1);
+    expect(receiveMessageMock).toBeCalledTimes(2);
     expect(receiveMessageMock.mock.calls[0][0]).toEqual({
       QueueUrl: 'URL',
       MaxNumberOfMessages: 10,
     });
     expect(receiveMessageMock.mock.calls[0][0].WaitTimeSeconds).toBeUndefined();
+    expect(receiveMessageMock.mock.calls[1][0]).toEqual({
+      QueueUrl: 'URL',
+      MaxNumberOfMessages: 10,
+    });
+    expect(receiveMessageMock.mock.calls[1][0].WaitTimeSeconds).toBeUndefined();
     expect(result).toHaveLength(1);
     expect(result[0].messageId).toBe('ID');
     expect(result[0].body).toBe('BODY');
@@ -42,9 +51,25 @@ describe('Queue', () => {
   });
 
   it('receiveMessages: empty Messages', async () => {
-    receiveMessageMock.mockImplementation(() => ({
+    receiveMessageMock.mockImplementationOnce(() => ({
       promise: () => Promise.resolve({
         Messages: [{}],
+      }),
+    })).mockImplementationOnce(() => ({
+      promise: () => Promise.resolve({
+        Messages: [],
+      }),
+    }));
+
+    const queue = new Queue('URL');
+    const result = await queue.receiveMessages();
+
+    expect(result).toHaveLength(0);
+  });
+
+  it('receiveMessages: Messages: undefined', async () => {
+    receiveMessageMock.mockImplementationOnce(() => ({
+      promise: () => Promise.resolve({
       }),
     }));
 

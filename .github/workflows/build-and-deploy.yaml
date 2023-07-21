@@ -37,17 +37,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Set Versions
+        run: |
+          sam_cli_version=`grep aws-sam-cli .tool-versions | awk '{print $2}'`
+          echo "SAM_CLI_VERSION=${sam_cli_version}" >> $GITHUB_ENV
+          nodejs_version=`grep nodejs .tool-versions | awk '{print $2}'`
+          echo "NODEJS_VERSION=${nodejs_version}" >> $GITHUB_ENV
       - uses: actions/setup-node@v3
         with:
-          node-version: '18.x'
-      - uses: actions/setup-python@v3
+          node-version: ${{ env.NODEJS_VERSION }}
+      - uses: aws-actions/setup-sam@v2
         with:
-          python-version: 3.x
-      - name: Install sam-cli
-        run: |
-          python -m pip install --upgrade pip
-          pip install awscli
-          pip install aws-sam-cli
+          use-installer: true
+          version: ${{ env.SAM_CLI_VERSION }}
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Build

@@ -20,9 +20,9 @@ jobs:
         with:
           node-version: '18.x'
       - name: Install dependencies
-        run: yarn --frozen-lockfile
+        run: npm ci
       - name: Test
-        run: yarn test
+        run: npm test
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
@@ -51,9 +51,9 @@ jobs:
           use-installer: true
           version: ${{ env.SAM_CLI_VERSION }}
       - name: Install dependencies
-        run: yarn --frozen-lockfile
+        run: npm ci
       - name: Build
-        run: yarn build
+        run: npm run build
       - name: Configure AWS Credentials
         if: startsWith(github.ref, 'refs/heads/main')
         uses: aws-actions/configure-aws-credentials@v2

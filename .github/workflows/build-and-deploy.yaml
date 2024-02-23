@@ -13,20 +13,20 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v3
+      - name: Set Versions
+        run: |
+          nodejs_version=`grep nodejs .tool-versions | awk '{print $2}'`
+          echo "NODEJS_VERSION=${nodejs_version}" >> $GITHUB_ENV
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18.x'
+          node-version: ${{ env.NODEJS_VERSION }}
       - name: Install dependencies
         run: npm ci
       - name: Test
         run: npm test
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
@@ -36,14 +36,14 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set Versions
         run: |
           sam_cli_version=`grep aws-sam-cli .tool-versions | awk '{print $2}'`
           echo "SAM_CLI_VERSION=${sam_cli_version}" >> $GITHUB_ENV
           nodejs_version=`grep nodejs .tool-versions | awk '{print $2}'`
           echo "NODEJS_VERSION=${nodejs_version}" >> $GITHUB_ENV
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODEJS_VERSION }}
       - uses: aws-actions/setup-sam@v2
@@ -56,7 +56,7 @@ jobs:
         run: npm run build
       - name: Configure AWS Credentials
         if: startsWith(github.ref, 'refs/heads/main')
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: ap-northeast-1
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE }}

@@ -21,18 +21,23 @@ Resources:
       CodeUri: dist/
       Handler: app.handler
       Events:
-        ScheduleEvent:
-          Type: Schedule
+        SQSEvent:
+          Type: SQS
           Properties:
-            Schedule: rate(1 minute)
+            Queue:
+              Fn::GetAtt: [SlackIncomingWebHookQueue, Arn]
+            BatchSize: 10
+            MaximumBatchingWindowInSeconds: 60
+            ScalingConfig:
+              MaximumConcurrency: 2
+            FunctionResponseTypes:
+              - ReportBatchItemFailures
       Environment:
         Variables:
           STAGE:
             Ref: Stage
           MESSAGEID_TABLE_NAME:
             Ref: MessageIdTableName
-          QUEUE_URL:
-            Ref: SlackIncomingWebHookQueue
       Policies:
         - Version: 2012-10-17
           Statement:
@@ -49,14 +54,6 @@ Resources:
               - dynamodb:PutItem
             Resource:
               Fn::GetAtt: [SlackIncomingTable, Arn]
-        - Version: 2012-10-17
-          Statement:
-            Effect: Allow
-            Action:
-              - sqs:ReceiveMessage
-              - sqs:DeleteMessage
-            Resource:
-              Fn::GetAtt: [SlackIncomingWebHookQueue, Arn]
 
   SlackIncomingWebHookFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -68,7 +65,7 @@ Resources:
   SlackIncomingWebHookQueue:
     Type: AWS::SQS::Queue
     Properties:
-      VisibilityTimeout: 180
+      VisibilityTimeout: 120
       MessageRetentionPeriod: 600
 
   SlackIncomingTable:

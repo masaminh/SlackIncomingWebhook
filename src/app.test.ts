@@ -1,15 +1,12 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { ScheduledEvent, Context } from 'aws-lambda';
+import type { SQSEvent, Context } from 'aws-lambda';
 import { handler } from './app';
 import UsedMessageIds from './used_messageids';
 import MessageInfo from './message_info';
 import Webhook from './webhook';
-import Queue from './queue';
 
 jest.mock('./used_messageids');
 jest.mock('./message_info');
 jest.mock('./webhook');
-jest.mock('./queue');
 jest.mock('./logger');
 
 describe('app', () => {
@@ -18,17 +15,16 @@ describe('app', () => {
   });
 
   it.each`
-    testName                    | contains | webhookName | sendMessageResult | calledSend | calledDelete
-    ${'Success'}                | ${false} | ${'ABC'}    | ${'Success'}      | ${1}       | ${1}
-    ${'Already used messageId'} | ${true}  | ${'ABC'}    | ${'Success'}      | ${0}       | ${1}
-    ${'Empty whebhookname'}     | ${false} | ${''}       | ${'Success'}      | ${0}       | ${1}
-    ${'Send error'}             | ${false} | ${'ABC'}    | ${'NeedRetry'}    | ${1}       | ${0}
+    testName                    | contains | webhookName | sendMessageResult | calledSend
+    ${'Success'}                | ${false} | ${'ABC'}    | ${'Success'}      | ${1}
+    ${'Already used messageId'} | ${true}  | ${'ABC'}    | ${'Success'}      | ${0}
+    ${'Empty whebhookname'}     | ${false} | ${''}       | ${'Success'}      | ${0}
+    ${'Send error'}             | ${false} | ${'ABC'}    | ${'NeedRetry'}    | ${1}
   `('handler: $testName', async ({
-    _testName, contains, webhookName, sendMessageResult, calledSend, calledDelete,
+    _testName, contains, webhookName, sendMessageResult, calledSend,
   }) => {
     const UsedMessageIdsMock = UsedMessageIds as jest.Mock;
     const MessageInfoMock = MessageInfo as jest.Mock;
-    const QueueMock = Queue as jest.Mock;
 
     UsedMessageIdsMock.mockImplementation(() => ({
       contains: async () => contains,
@@ -47,24 +43,45 @@ describe('app', () => {
 
     jest.spyOn(Webhook, 'create').mockImplementation(async () => webhookMock);
 
-    const deleteMessagesMock = jest.fn(() => Promise.resolve());
-
-    QueueMock.mockImplementation(() => ({
-      receiveMessages: () => Promise.resolve(
-        [{ messageId: 'MESSAGEID', body: 'BODY', handle: 'HANDLE' }],
-      ),
-      deleteMessages: deleteMessagesMock,
-    }));
-
-    const MockEvent = jest.fn<ScheduledEvent, []>();
-    const event = new MockEvent();
+    const event = {
+      Records: [{
+        body: 'BODY',
+        messageId: 'MESSAGEID',
+      }],
+    } as SQSEvent;
 
     const MockContext = jest.fn<Context, []>();
     const context = new MockContext();
 
     await handler(event, context, () => {});
 
-    expect(sendMessageMock).toBeCalledTimes(calledSend);
-    expect(deleteMessagesMock).toBeCalledTimes(calledDelete);
+    expect(sendMessageMock).toHaveBeenCalledTimes(calledSend);
+  });
+
+  it('error occured', async () => {
+    const UsedMessageIdsMock = UsedMessageIds as jest.Mock;
+
+    UsedMessageIdsMock.mockImplementation(() => ({
+      contains: async () => { throw new Error(); },
+    }));
+    const sendMessageMock = jest.fn(() => Promise.resolve('Success'));
+    const webhookMock = {
+      sendMessage: sendMessageMock,
+    } as unknown as Webhook;
+    jest.spyOn(Webhook, 'create').mockImplementation(async () => webhookMock);
+
+    const event = {
+      Records: [{
+        body: 'BODY',
+        messageId: 'MESSAGEID',
+      }],
+    } as SQSEvent;
+
+    const MockContext = jest.fn<Context, []>();
+    const context = new MockContext();
+
+    await handler(event, context, () => {});
+
+    expect(sendMessageMock).not.toHaveBeenCalled();
   });
 });

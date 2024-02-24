@@ -1,59 +1,60 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { ScheduledHandler } from 'aws-lambda';
+import type { SQSHandler } from 'aws-lambda';
 import { DateTime } from 'luxon';
 import MessageInfo from './message_info';
 import UsedMessageIds from './used_messageids';
-import Queue from './queue';
 import Webhook from './webhook';
 import logger from './logger';
 
 const stage = process.env.STAGE ?? '';
 const messageIdTableName = process.env.MESSAGEID_TABLE_NAME ?? '';
-const queueUrl = process.env.QUEUE_URL ?? '';
 
 // eslint-disable-next-line import/prefer-default-export
-export const handler: ScheduledHandler = async (_event) => {
+export const handler: SQSHandler = async (event) => {
   const usedMessageIds = new UsedMessageIds(messageIdTableName);
   const now = DateTime.local();
-  const queue = new Queue(queueUrl);
-  const queueMessages = await queue.receiveMessages();
+  const queueMessages = event.Records.map((record) => ({
+    messageId: record.messageId,
+    body: record.body,
+  }));
 
-  const handles: (string | null)[] = await Promise.all(
+  const failedMessageId: (string | undefined)[] = await Promise.all(
     queueMessages.map(async (v) => {
-      if (await usedMessageIds.contains(v.messageId)) {
-        logger.info(`Already used messageId: ${v.messageId}`);
-        return v.handle;
+      try {
+        if (await usedMessageIds.contains(v.messageId)) {
+          logger.info(`Already used messageId: ${v.messageId}`);
+          return undefined;
+        }
+
+        const messageInfo: MessageInfo = new MessageInfo(v.body);
+        const webhookname = messageInfo.getWebhookName();
+
+        if (webhookname === '') {
+          return undefined;
+        }
+
+        const webhook = await Webhook.create(stage, webhookname);
+        const message = messageInfo.getMessage();
+        const resultType = await webhook.sendMessage(message);
+
+        if (resultType === 'NeedRetry') {
+          return v.messageId;
+        }
+
+        await usedMessageIds.add(v.messageId, now);
+        return undefined;
+      } catch (_e) {
+        return v.messageId;
       }
-
-      const messageInfo: MessageInfo = new MessageInfo(v.body);
-      const webhookname = messageInfo.getWebhookName();
-
-      if (webhookname === '') {
-        return v.handle;
-      }
-
-      const webhook = await Webhook.create(stage, webhookname);
-      const message = messageInfo.getMessage();
-      const resultType = await webhook.sendMessage(message);
-
-      if (resultType === 'NeedRetry') {
-        return null;
-      }
-
-      await usedMessageIds.add(v.messageId, now);
-      return v.handle;
     }),
   );
 
-  const deleteTargets: string[] = [];
-
-  handles.forEach((handle) => {
-    if (handle != null) {
-      deleteTargets.push(handle);
+  const batchItemFailures = failedMessageId.flatMap((messageId) => {
+    if (messageId == null) {
+      return [];
     }
+
+    return [{ itemIdentifier: messageId }];
   });
 
-  if (deleteTargets.length > 0) {
-    await queue.deleteMessages(deleteTargets);
-  }
+  return { batchItemFailures };
 };

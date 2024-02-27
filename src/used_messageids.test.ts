@@ -1,24 +1,20 @@
-import AWS from 'aws-sdk';
 import { DateTime } from 'luxon';
+import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
+import { mockClient } from 'aws-sdk-client-mock';
 import UsedMessageIds from './used_messageids';
 
 jest.mock('./logger');
 
-jest.mock('aws-sdk');
-const DocumentClientMock = AWS.DynamoDB.DocumentClient as jest.Mock;
+const documentMockClient = mockClient(DynamoDBDocumentClient);
 
-beforeAll(() => {
-  jest.clearAllMocks();
+beforeEach(() => {
+  documentMockClient.reset();
 });
 
 test('not contained messageid', async () => {
-  DocumentClientMock.mockImplementationOnce((): any => ({
-    get: (_param: any, _callback: any) => ({
-      promise: () => ({
-        Item: undefined,
-      }),
-    }),
-  }));
+  documentMockClient.on(GetCommand).resolvesOnce({
+    Item: undefined,
+  });
 
   const usedMessageIds = new UsedMessageIds('TABLE_NAME');
   const result = await usedMessageIds.contains('ABC');
@@ -26,16 +22,12 @@ test('not contained messageid', async () => {
 });
 
 test('contained messageid', async () => {
-  DocumentClientMock.mockImplementationOnce((): any => ({
-    get: (_param: any, _callback: any) => ({
-      promise: () => ({
-        Item: {
-          MessageId: 'ABC',
-          TTL: 1000,
-        },
-      }),
-    }),
-  }));
+  documentMockClient.on(GetCommand).resolvesOnce({
+    Item: {
+      MessageId: 'ABC',
+      TTL: 1000,
+    },
+  });
 
   const usedMessageIds = new UsedMessageIds('TABLE_NAME');
   const result = await usedMessageIds.contains('ABC');
@@ -43,15 +35,10 @@ test('contained messageid', async () => {
 });
 
 test('add', async () => {
-  const putFunc = jest.fn();
-  putFunc.mockReturnValue({
-    promise: () => ({}),
-  });
-  DocumentClientMock.mockImplementationOnce((): any => ({
-    put: putFunc,
-  }));
+  documentMockClient.on(PutCommand);
 
   const usedMessageIds = new UsedMessageIds('TABLE_NAME');
   usedMessageIds.add('ABC', DateTime.fromISO('2020-01-01T00:00:00Z'));
-  expect(putFunc.mock.calls.length).toBe(1);
+  const callsOfGet = documentMockClient.commandCalls(PutCommand);
+  expect(callsOfGet).toHaveLength(1);
 });

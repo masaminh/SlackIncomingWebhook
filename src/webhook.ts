@@ -1,4 +1,4 @@
-import AWS from 'aws-sdk';
+import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 import axios from 'axios';
 import logger from './logger';
 import { MessagePayload } from './message_info';
@@ -48,10 +48,9 @@ export default class Webhook {
   ): Promise<string> {
     const parameterName = `/${stage}/SlackIncomingWebhook/${webhookName}/WebHookUrl`;
     try {
-      const ssm = new AWS.SSM();
-      const response = await ssm
-        .getParameter({ Name: parameterName })
-        .promise();
+      const ssm = new SSMClient();
+      const command = new GetParameterCommand({ Name: parameterName });
+      const response = await ssm.send(command);
       const url = response.Parameter?.Value;
       return url ?? '';
     } catch (e) {

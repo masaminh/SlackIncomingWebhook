@@ -1,44 +1,35 @@
-import AWS from 'aws-sdk';
+import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
+import { mockClient } from 'aws-sdk-client-mock';
 import axios from 'axios';
 import Webhook from './webhook';
 
-jest.mock('aws-sdk');
 jest.mock('axios');
 jest.mock('./logger');
 
-const SSMMock = AWS.SSM as unknown as jest.Mock;
+const SSMMock = mockClient(SSMClient);
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  SSMMock.reset();
+  jest.resetAllMocks();
 });
 
 test('create', async () => {
-  const getParameterFunc = jest.fn();
-  getParameterFunc.mockReturnValue({
-    promise: () => ({
-      Parameter: {
-        Value: 'https://example.com/',
-      },
-    }),
+  SSMMock.on(GetParameterCommand).resolves({
+    Parameter: {
+      Value: 'https://example.com/',
+    },
   });
-  SSMMock.mockImplementationOnce((): any => ({
-    getParameter: getParameterFunc,
-  }));
 
   await Webhook.create('stage', 'webhookname');
-  expect(getParameterFunc.mock.calls.length).toBe(1);
+  expect(SSMMock.commandCalls(GetParameterCommand)).toHaveLength(1);
 });
 
 test('sendMessage success', async () => {
-  SSMMock.mockImplementationOnce((): any => ({
-    getParameter: (_param: any, _callback: any) => ({
-      promise: () => ({
-        Parameter: {
-          Value: 'https://example.com/',
-        },
-      }),
-    }),
-  }));
+  SSMMock.on(GetParameterCommand).resolvesOnce({
+    Parameter: {
+      Value: 'https://example.com/',
+    },
+  });
 
   const mockedAxios = axios as jest.Mocked<typeof axios>;
   mockedAxios.post.mockResolvedValue({ status: 200 });
@@ -48,15 +39,11 @@ test('sendMessage success', async () => {
 });
 
 test('sendMessage need retry', async () => {
-  SSMMock.mockImplementationOnce((): any => ({
-    getParameter: (_param: any, _callback: any) => ({
-      promise: () => ({
-        Parameter: {
-          Value: 'https://example.com/',
-        },
-      }),
-    }),
-  }));
+  SSMMock.on(GetParameterCommand).resolvesOnce({
+    Parameter: {
+      Value: 'https://example.com/',
+    },
+  });
 
   const mockedAxios = axios as jest.Mocked<typeof axios>;
   mockedAxios.post.mockResolvedValue({ status: 500 });
@@ -66,15 +53,11 @@ test('sendMessage need retry', async () => {
 });
 
 test('sendMessage not retry', async () => {
-  SSMMock.mockImplementationOnce((): any => ({
-    getParameter: (_param: any, _callback: any) => ({
-      promise: () => ({
-        Parameter: {
-          Value: 'https://example.com/',
-        },
-      }),
-    }),
-  }));
+  SSMMock.on(GetParameterCommand).resolvesOnce({
+    Parameter: {
+      Value: 'https://example.com/',
+    },
+  });
 
   const mockedAxios = axios as jest.Mocked<typeof axios>;
   mockedAxios.post.mockResolvedValue({ status: 404 });

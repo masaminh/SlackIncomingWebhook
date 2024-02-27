@@ -18,6 +18,11 @@ rules:
     - error
     - always
     - ts: never
+  import/no-extraneous-dependencies:
+    - error
+    - devDependencies:
+      - '**/*.test.ts'
+      optionalDependencies: false
   no-unused-vars:
     - 2
     - argsIgnorePattern: '^_'

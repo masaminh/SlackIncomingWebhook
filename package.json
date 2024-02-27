@@ -9,7 +9,7 @@
     "lint": "eslint 'src/**/*.ts'"
   },
   "devDependencies": {
-    "@tsconfig/node14": "^14.1.0",
+    "@tsconfig/node20": "^20.1.2",
     "@types/aws-lambda": "^8.10.134",
     "@types/bunyan": "^1.8.11",
     "@types/jest": "^29.5.12",

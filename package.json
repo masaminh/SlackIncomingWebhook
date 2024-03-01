@@ -34,11 +34,8 @@
     "@aws-sdk/client-dynamodb": "^3.521.0",
     "@aws-sdk/client-ssm": "^3.521.0",
     "@aws-sdk/lib-dynamodb": "^3.521.0",
-    "aws-xray-sdk": "^3.5.3",
     "axios": "^1.6.7",
     "bunyan": "^1.8.15",
-    "install": "^0.13.0",
-    "luxon": "^3.4.4",
-    "npm": "^10.4.0"
+    "luxon": "^3.4.4"
   }
 }

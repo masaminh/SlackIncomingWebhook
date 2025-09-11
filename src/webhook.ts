@@ -6,7 +6,7 @@ import { MessagePayload } from './message_info';
 export type ResultType = 'Success' | 'NotSuccess' | 'NeedRetry';
 
 export default class Webhook {
-  private url: string;
+  private readonly url: string;
 
   private constructor(url: string) {
     this.url = url;

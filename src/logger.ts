@@ -12,6 +12,10 @@ export default class Logger {
     logger.info(message);
   }
 
+  public static warn(message: string): void {
+    logger.warn(message);
+  }
+
   public static debug(message: string): void {
     logger.debug(message);
   }

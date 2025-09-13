@@ -2,6 +2,10 @@
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": "explicit"
     },
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
+    "sonarlint.connectedMode.project": {
+        "connectionId": "masaminh",
+        "projectKey": "masaminh_SlackIncomingWebhook"
+    }
 }
  

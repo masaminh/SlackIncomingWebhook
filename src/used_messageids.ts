@@ -3,9 +3,9 @@ import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dyn
 import { DateTime } from 'luxon';
 
 export default class UsedMessageIds {
-  private docClient: DynamoDBDocumentClient;
+  private readonly docClient: DynamoDBDocumentClient;
 
-  private messageIdTableName: string;
+  private readonly messageIdTableName: string;
 
   public constructor(tableName: string) {
     const client = new DynamoDBClient({});

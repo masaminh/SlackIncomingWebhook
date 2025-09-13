@@ -42,7 +42,10 @@ export const handler: SQSHandler = async (event) => {
 
         await usedMessageIds.add(v.messageId, now);
         return undefined;
-      } catch (_e) {
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          logger.warn(e.message);
+        }
         return v.messageId;
       }
     }),

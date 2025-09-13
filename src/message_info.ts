@@ -54,11 +54,11 @@ export interface MessagePayload {
 }
 
 export default class MessageInfo {
-  private webhookname = '';
+  private readonly webhookname: string = '';
 
-  private message = '';
+  private readonly message: string = '';
 
-  private images: InputMessageImageInfo[] = [];
+  private readonly images: InputMessageImageInfo[] = [];
 
   public constructor(messageBody: string) {
     logger.info(`received message: ${JSON.stringify(messageBody)}`);

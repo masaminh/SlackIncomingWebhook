@@ -64,4 +64,6 @@ jobs:
           role-session-name: SlackIncomingWebHookApp
       - name: Deploy
         if: startsWith(github.ref, 'refs/heads/main')
-        run: sam deploy --stack-name SlackIncomingWebHookAppProd --s3-bucket ${{ secrets.AWS_SAM_BUCKET_NAME }} --s3-prefix SlackIncomingWebHookAppProd --capabilities CAPABILITY_IAM --parameter-overrides "Stage=Prod MessageIdTableName=SlackIncomingMessageIdTableProd" --no-fail-on-empty-changeset
+        env:
+          AWS_SAM_BUCKET_NAME: ${{ secrets.AWS_SAM_BUCKET_NAME }}
+        run: sam deploy --stack-name SlackIncomingWebHookAppProd --s3-bucket $AWS_SAM_BUCKET_NAME --s3-prefix SlackIncomingWebHookAppProd --capabilities CAPABILITY_IAM --parameter-overrides "Stage=Prod MessageIdTableName=SlackIncomingMessageIdTableProd" --no-fail-on-empty-changeset

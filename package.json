@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@tsconfig/node24": "^24.0.4",
-    "@types/aws-lambda": "^8.10.161",
+    "@types/aws-lambda": "^8.10.162",
     "@types/bunyan": "^1.8.11",
     "@types/jest": "^29.5.12",
     "@types/luxon": "^3.7.1",
@@ -31,10 +31,10 @@
     "typescript": "~5.9"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.1057.0",
-    "@aws-sdk/client-ssm": "^3.1057.0",
-    "@aws-sdk/lib-dynamodb": "^3.1057.0",
-    "axios": "^1.16.1",
+    "@aws-sdk/client-dynamodb": "^3.1063.0",
+    "@aws-sdk/client-ssm": "^3.1063.0",
+    "@aws-sdk/lib-dynamodb": "^3.1063.0",
+    "axios": "^1.17.0",
     "bunyan": "^1.8.15",
     "luxon": "^3.7.2"
   }

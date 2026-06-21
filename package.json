@@ -13,7 +13,7 @@
     "@types/aws-lambda": "^8.10.162",
     "@types/bunyan": "^1.8.11",
     "@types/jest": "^29.5.12",
-    "@types/luxon": "^3.7.1",
+    "@types/luxon": "^3.7.2",
     "@types/node": "^24",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
@@ -31,10 +31,10 @@
     "typescript": "~5.9"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.1068.0",
-    "@aws-sdk/client-ssm": "^3.1068.0",
-    "@aws-sdk/lib-dynamodb": "^3.1068.0",
-    "axios": "^1.17.0",
+    "@aws-sdk/client-dynamodb": "^3.1073.0",
+    "@aws-sdk/client-ssm": "^3.1073.0",
+    "@aws-sdk/lib-dynamodb": "^3.1073.0",
+    "axios": "^1.18.0",
     "bunyan": "^1.8.15",
     "luxon": "^3.7.2"
   }

@@ -26,14 +26,14 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.6.0",
     "jest": "^29.7.0",
-    "ts-jest": "^29.4.11",
+    "ts-jest": "^29.4.12",
     "ts-node": "^10.9.2",
     "typescript": "~5.9"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.1090.0",
-    "@aws-sdk/client-ssm": "^3.1090.0",
-    "@aws-sdk/lib-dynamodb": "^3.1090.0",
+    "@aws-sdk/client-dynamodb": "^3.1095.0",
+    "@aws-sdk/client-ssm": "^3.1095.0",
+    "@aws-sdk/lib-dynamodb": "^3.1095.0",
     "axios": "^1.18.1",
     "bunyan": "^1.8.15",
     "luxon": "^3.7.2"

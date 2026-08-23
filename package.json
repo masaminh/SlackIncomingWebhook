@@ -9,7 +9,7 @@
     "lint": "eslint 'src/**/*.ts'"
   },
   "devDependencies": {
-    "@tsconfig/node24": "^24.0.4",
+    "@tsconfig/node24": "^24.0.5",
     "@types/aws-lambda": "^8.10.162",
     "@types/bunyan": "^1.8.11",
     "@types/jest": "^29.5.12",
@@ -31,9 +31,9 @@
     "typescript": "~5.9"
   },
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.1109.0",
-    "@aws-sdk/client-ssm": "^3.1109.0",
-    "@aws-sdk/lib-dynamodb": "^3.1109.0",
+    "@aws-sdk/client-dynamodb": "^3.1114.0",
+    "@aws-sdk/client-ssm": "^3.1114.0",
+    "@aws-sdk/lib-dynamodb": "^3.1114.0",
     "axios": "^1.19.0",
     "bunyan": "^1.8.15",
     "luxon": "^3.7.2"

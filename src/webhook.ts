@@ -8,8 +8,11 @@ export type ResultType = 'Success' | 'NotSuccess' | 'NeedRetry';
 export default class Webhook {
   private readonly url: string;
 
-  private constructor(url: string) {
+  private readonly webhookName: string;
+
+  private constructor(url: string, webhookName: string) {
     this.url = url;
+    this.webhookName = webhookName;
   }
 
   public static async create(
@@ -17,7 +20,7 @@ export default class Webhook {
     webhookName: string,
   ): Promise<Webhook> {
     const url = await Webhook.getSlackUrl(stage, webhookName);
-    return new Webhook(url);
+    return new Webhook(url, webhookName);
   }
 
   public async sendMessage(message: MessagePayload): Promise<ResultType> {
@@ -28,7 +31,8 @@ export default class Webhook {
       },
     });
 
-    const logMessage = `Posted: url=${this.url}, message=${JSON.stringify(
+    // Webhook URL はそれ自体が投稿用の秘密情報なのでログには出さない
+    const logMessage = `Posted: webhook=${this.webhookName}, message=${JSON.stringify(
       message,
     )}, httpstatus=${response.status}`;
     const resultType = Webhook.getResultType(response.status);

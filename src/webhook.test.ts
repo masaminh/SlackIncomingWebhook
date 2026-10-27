@@ -2,6 +2,7 @@ import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 import { mockClient } from 'aws-sdk-client-mock';
 import axios from 'axios';
 import Webhook from './webhook';
+import logger from './logger';
 
 jest.mock('axios');
 jest.mock('./logger');
@@ -64,4 +65,30 @@ test('sendMessage not retry', async () => {
   const webhook = await Webhook.create('stage', 'webhookname');
   const result = await webhook.sendMessage({ text: 'hello', blocks: [] });
   expect(result).toBe('NotSuccess');
+});
+
+test('sendMessage does not log webhook url', async () => {
+  SSMMock.on(GetParameterCommand).resolvesOnce({
+    Parameter: {
+      Value: 'https://hooks.slack.com/services/SECRET',
+    },
+  });
+
+  const mockedAxios = axios as jest.Mocked<typeof axios>;
+  mockedAxios.post.mockResolvedValueOnce({ status: 200 });
+  mockedAxios.post.mockResolvedValueOnce({ status: 500 });
+  const webhook = await Webhook.create('stage', 'webhookname');
+  await webhook.sendMessage({ text: 'hello', blocks: [] });
+  await webhook.sendMessage({ text: 'hello', blocks: [] });
+
+  const mockedLogger = logger as jest.Mocked<typeof logger>;
+  const logged = [
+    ...mockedLogger.info.mock.calls,
+    ...mockedLogger.error.mock.calls,
+  ].map((args) => args[0]);
+  expect(logged).toHaveLength(2);
+  logged.forEach((m) => {
+    expect(m).not.toContain('hooks.slack.com');
+    expect(m).toContain('webhook=webhookname');
+  });
 });
